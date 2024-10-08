@@ -1,3 +1,9 @@
+/**
+Swiper: wraps all slides and initializes the Swiper instance.
+SwiperSlide: Represents an individual slide inside the Swiper component.
+SwiperCore: (navigate from one slide to another)The core Swiper module used to configure and register additional functionalities or features.
+ */
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -52,15 +58,20 @@ export default function Listing() {
 
   return (
     <main>
+      {/* Display a loading message if 'loading' is true */}
       {loading && <p className='text-center my-7 text-2xl'>Loading...</p>}
+      {/* Display an error message if 'error' is true */}
       {error && (
         <p className='text-center my-7 text-2xl'>Something went wrong!</p>
       )}
+      {/* Display the listing details if 'listing' is available and there's no loading or error */}
       {listing && !loading && !error && (
         <div>
+          {/* Swiper carousel for displaying images */}
+          {/**takes images and displayes in carousel */}
           <Swiper navigation>
             {listing.imageUrls.map((url) => (
-              <SwiperSlide key={url}>
+              <SwiperSlide key={url}> 
                 <div
                   className='h-[550px]'
                   style={{
@@ -75,11 +86,11 @@ export default function Listing() {
             <FaShare
               className='text-slate-500'
               onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                setCopied(true);
+                navigator.clipboard.writeText(window.location.href);// Copy current URL to clipboard
+                setCopied(true); // Set state to show "Link copied!" message
                 setTimeout(() => {
-                  setCopied(false);
-                }, 2000);
+                  setCopied(false); // Hide the message after 2 seconds
+                }, 2000); //2000 milliseconds = 2 seconds
               }}
             />
           </div>
@@ -91,10 +102,11 @@ export default function Listing() {
           <div className='flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4'>
             <p className='text-2xl font-semibold'>
               {listing.name} - ${' '}
-              {listing.offer
-                ? listing.discountPrice.toLocaleString('en-US')
-                : listing.regularPrice.toLocaleString('en-US')}
-              {listing.type === 'rent' && ' / month'}
+              {listing.offer //conditional operator
+                ? listing.discountPrice.toLocaleString('en-US') // Display discounted price if an offer exists
+                : listing.regularPrice.toLocaleString('en-US') // Otherwise, display regular price
+              } 
+              {listing.type === 'rent' && ' / month'} {/** Append "/ month" if the listing is for rent  */}
             </p>
             <p className='flex items-center mt-6 gap-2 text-slate-600  text-sm'>
               <FaMapMarkerAlt className='text-green-700' />
@@ -136,6 +148,7 @@ export default function Listing() {
                 {listing.furnished ? 'Furnished' : 'Unfurnished'}
               </li>
             </ul>
+            {/** below Ensures the current user is not the owner of the listing.  */}
             {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button
                 onClick={() => setContact(true)}

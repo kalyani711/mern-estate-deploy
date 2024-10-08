@@ -5,9 +5,9 @@ import ListingItem from '../components/ListingItem';
 export default function Search() {
   const navigate = useNavigate();
   const [sidebardata, setSidebardata] = useState({
-    searchTerm: '',
+    searchTerm: '',  //allowing users to search for listings by keywords.
     type: 'all',
-    parking: false,
+    parking: false,  //whether to filter listings that include parking options.
     furnished: false,
     offer: false,
     sort: 'created_at',
@@ -19,7 +19,7 @@ export default function Search() {
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
+    const urlParams = new URLSearchParams(location.search); //JavaScript API that provides utility methods for working with query strings in URLs.
     const searchTermFromUrl = urlParams.get('searchTerm');
     const typeFromUrl = urlParams.get('type');
     const parkingFromUrl = urlParams.get('parking');
@@ -27,7 +27,11 @@ export default function Search() {
     const offerFromUrl = urlParams.get('offer');
     const sortFromUrl = urlParams.get('sort');
     const orderFromUrl = urlParams.get('order');
-
+/**
+ * In this code snippet, you’re checking if any of the variables (searchTermFromUrl, typeFromUrl, parkingFromUrl,
+ *  furnishedFromUrl, offerFromUrl, sortFromUrl, orderFromUrl) have values. If at least one of these variables has a value,
+ *  you update the sidebardata state with the values from these variables or with default values if they are not provided.
+ */
     if (
       searchTermFromUrl ||
       typeFromUrl ||
@@ -40,11 +44,11 @@ export default function Search() {
       setSidebardata({
         searchTerm: searchTermFromUrl || '',
         type: typeFromUrl || 'all',
-        parking: parkingFromUrl === 'true' ? true : false,
+        parking: parkingFromUrl === 'true' ? true : false, // parking is not being filtered.
         furnished: furnishedFromUrl === 'true' ? true : false,
         offer: offerFromUrl === 'true' ? true : false,
         sort: sortFromUrl || 'created_at',
-        order: orderFromUrl || 'desc',
+        order: orderFromUrl || 'desc', //items will be sorted from newest to oldest.
       });
     }
 

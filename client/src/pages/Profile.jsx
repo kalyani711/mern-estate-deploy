@@ -1,3 +1,15 @@
+/**
+--useSelector: useSelector is a hook from React Redux that allows you to extract data from the Redux store state.
+--In this code, useSelector is used to extract the currentUser, loading, and error properties from the Redux store state.
+-- useRef is a hook from React that allows you to create a reference to a DOM node 
+-- In our code, useRef is used to create a reference to the file input element, which is used to upload a file.
+--used to track state of variables , then add them in to local storage
+--In your code, useState is used to create several state variables, such as file, filePerc, fileUploadError, formData, updateSuccess, showListingsError, and userListings.
+--useEffect allows you to perform side effects such as data fetching, subscriptions, or manual DOM manipulations.
+--In our code, useEffect is used to handle file uploads when the file state changes.
+
+*/
+
 import { useSelector } from 'react-redux';
 import { useRef, useState, useEffect } from 'react';
 import {
@@ -142,6 +154,14 @@ export default function Profile() {
       setShowListingsError(true);
     }
   };
+  /*
+  Details:
+fetch: A function used to make HTTP requests.
+`/api/listing/delete/${listingId}`: The URL for the DELETE request, where listingId is dynamically inserted into the URL.
+{ method: 'DELETE' }: Configures the HTTP method for the request as DELETE.
+ (prev) => prev.filter((listing) => listing._id !== listingId): 
+ A function that filters out the listing with the matching listingId from the previous state, effectively removing it.
+   */
 
   const handleListingDelete = async (listingId) => {
     try {
@@ -185,7 +205,7 @@ export default function Profile() {
             </span>
           ) : filePerc > 0 && filePerc < 100 ? (
             <span className='text-slate-700'>{`Uploading ${filePerc}%`}</span>
-          ) : filePerc === 100 ? (
+          ) : filePerc === 100 ? ( //filePerce is percentage of file uploaded
             <span className='text-green-700'>Image successfully uploaded!</span>
           ) : (
             ''

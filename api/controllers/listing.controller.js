@@ -61,15 +61,20 @@ export const getListing = async (req, res, next) => {
     next(error);
   }
 };
+/**
+ getListings function is designed to fetch a list of real estate listings from the 
+ database based on query parameters provided by the client. 
+ It supports pagination, filtering by various criteria (e.g., offer, furnished, parking, type), and sorting. 
+ */
 
 export const getListings = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 9;
-    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9; //limit determines the maximum number of listings to return.
+    const startIndex = parseInt(req.query.startIndex) || 0; //used for pagination to skip a certain number of listings, listing starting from this index
     let offer = req.query.offer;
 
     if (offer === undefined || offer === 'false') {
-      offer = { $in: [false, true] };
+      offer = { $in: [false, true] }; // include listings regardless of whether the offer field is true, false, or any other value.
     }
 
     let furnished = req.query.furnished;

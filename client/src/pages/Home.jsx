@@ -21,32 +21,40 @@ export default function Home() {
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
 
-  SwiperCore.use([Navigation]);
-
+  SwiperCore.use([Navigation]); //This is a Swiper module that provides navigation controls (e.g., next and previous buttons) for the slider.
+/*he useEffect hook in React is used for handling side effects in functional components. 
+  Side effects can include data fetching, subscriptions, manual DOM manipulations, and more.*/
+  /*It takes two arguments:
+  A function containing the side effect logic.(functions we called :fetchOfferListings,fetchRentListings,fetchSaleListings )
+  An optional dependency array that controls when the effect should run ; here : [] means it will run only once when the component is mounted.
+  compoonent mounted means the component is first inserted into the DOM  tree
+ */
   useEffect(() => {
-    const fetchOfferListings = async () => {
+    const fetchOfferListings = async () => {   // this block is (function definition of offerListings)
       try {
         const res = await fetch('/api/listing/get?offer=true&limit=6');
+  /**This line sends a request to the API endpoint /api/listing/get with query parameters offer=true and limit=6. */
+  /**await: This keyword waits for the fetch  */
         const data = await res.json();
-        setOfferListings(data);
-        fetchRentListings();
+        setOfferListings(data);// It updates the state with the data fetched from the API.
+        fetchRentListings(); //(function calling)Call fetchRentListings after fetching offers to maintain sequencial fetching and avoid dependencies
       } catch (error) {
         console.log(error);
       }
     };
 
-    const fetchRentListings = async () => {
+    const fetchRentListings = async () => { // this block is (function definition of RentListings)
       try {
         const res = await fetch('/api/listing/get?type=rent&limit=6');
         const data = await res.json();
         setRentListings(data);
-        fetchSaleListings();
+        fetchSaleListings();// (function calling)Call fetchSaleListings after fetching rents to maintain sequencial fetching and avoid dependencies
       } catch (error) {
         console.log(error);
       }
     };
 
-    const fetchSaleListings = async () => {
+    const fetchSaleListings = async () => {  // this block is (function definition of SaleListings)
       try {
         const res = await fetch('/api/listing/get?type=sale&limit=6');
         const data = await res.json();
@@ -56,7 +64,7 @@ export default function Home() {
       }
     };
 
-    fetchOfferListings();
+    fetchOfferListings();  //(function calling of offerlisting)This call is made to kick off the entire sequence of data fetching when the component mounts.
   }, []);
 
   return (
@@ -112,6 +120,7 @@ export default function Home() {
         </Swiper>
 
         {/* listing results for offer, sale and rent */}
+        {/* here ,up to 6 listimgs are called from from db using fetch , this data is given ui/frontend from listingitem component , later it is taken in to home.jsx and diaplayed */}
         <div className='max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10'>
           {offerListings && offerListings.length > 0 && (
             <div className=''>

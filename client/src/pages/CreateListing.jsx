@@ -1,7 +1,10 @@
+//git add CreateListing.jsx
 //useState is a react Hook allows you to declare a state variable and a function to update that variable.
 //whenever variable state changes , the data typed gets updated in database
 /*let a field username be an example , username is state variable with initial value empty String , when user types something,
 the variable state changes and the state variable(Username) attains user entered value*/
+//data is stored in component's local state to manipulate form input data within the component.later it is sent to mongodb in backend when we click submit
+
 import { useState } from 'react';
 import {
   getDownloadURL, //retrieves the download URL for a file stored in Firebase Storage.
@@ -17,7 +20,7 @@ export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);//this line uses the useSelector hook to access the currentUser from the Redux store and verify if user logged in
   const navigate = useNavigate();
   const [files, setFiles] = useState([]); //files is the state variable, and setFiles is the function to update it.
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ //data is stored in component's local state to manipulate form input data within the component.later it is sent to mongodb in backend when we click submit
     imageUrls: [],
     name: '',
     description: '',
@@ -46,10 +49,13 @@ export default function CreateListing() {
       const promises = [];
 
       for (let i = 0; i < files.length; i++) {
-        promises.push(storeImage(files[i]));
+        promises.push(storeImage(files[i]));  //promises is an array that is used to store multiple promises.
       }
       /*Uses Promise.all to wait until all image upload promises are resolved. When all uploads are successful, 
       it updates the formData state with the new image URLs, concatenating them with the existing URLs.*/
+      //see promises and firebase file for more details
+      //in below code, it is storing the image in firebase storage and then getting the download url of the image 
+      //image submit enabled only when all images are uploaded(by promises)
       Promise.all(promises)
         .then((urls) => {
           setFormData({
@@ -68,25 +74,28 @@ export default function CreateListing() {
       setUploading(false);
     }
   };
-
-  const storeImage = async (file) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
+/*storeImage function handles uploading an image to Firebase Storage and returns a promise that resolves 
+with the image's download URL. Here's a detailed breakdown:
+*/  
+const storeImage = async (file) => {
+    return new Promise((resolve, reject) => { //creating promise object to handle asynchronous operations
+      const storage = getStorage(app); //retrieves the Firebase Storage instance
       const fileName = new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const storageRef = ref(storage, fileName); //Creates a reference to the location in Firebase Storage where the file will be uploaded. This reference is used to upload the file.
+      const uploadTask = uploadBytesResumable(storageRef, file); //the file 'file' is stored at location storageRef in firebase
+      //uploadBytesResumable function allows the upload to be paused and resumed if necessary.(in this project ui is not designed for resume ,pause, canbe done if want to)
       uploadTask.on(
         'state_changed',
-        (snapshot) => {
+        (snapshot) => { //snapshot is an object containing information about the upload progress, such as bytes transferred and total bytes.
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
+          console.log(`Upload is ${progress}% done`); 
         },
         (error) => {
           reject(error);
         },
         () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => { //file uploaded and reference - url and sent it through resolve method
             resolve(downloadURL);
           });
         }
@@ -94,21 +103,22 @@ export default function CreateListing() {
     });
   };
 
-  const handleRemoveImage = (index) => {
+  const handleRemoveImage = (index) => { //index in parameter = index that need to be excluded(i.e deleted)
     setFormData({
-      ...formData,
-      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
+      ...formData, //spread operator (...formData) is used to create a new object that includes all existing properties of formData
+      imageUrls: formData.imageUrls.filter((_, i) => i !== index), //filter is used to create a new array that excludes the image at the specified index
     });
   };
 
   const handleChange = (e) => {
+  //below:This means that when a user selects "sale" or "rent", the type property in the state will be updated to match the selected value.
     if (e.target.id === 'sale' || e.target.id === 'rent') {
       setFormData({
         ...formData,
         type: e.target.id,
       });
     }
-
+//below: When a user checks or unchecks these options, the respective property in the formData state will reflect the current checked state.
     if (
       e.target.id === 'parking' ||
       e.target.id === 'furnished' ||
@@ -119,7 +129,7 @@ export default function CreateListing() {
         [e.target.id]: e.target.checked,
       });
     }
-
+//Updates the value of text, number, and textarea inputs in the state.
     if (
       e.target.type === 'number' ||
       e.target.type === 'text' ||
@@ -133,6 +143,8 @@ export default function CreateListing() {
   };
 
   const handleSubmit = async (e) => {
+//in default behaviour, data directly goes to backend, but here it is stored in local state and then sent to backend
+//in default behaviour, page reloads after submission, but here it is prevented
     e.preventDefault();
     try {
       if (formData.imageUrls.length < 1)
@@ -141,7 +153,10 @@ export default function CreateListing() {
         return setError('Discount price must be lower than regular price');
       setLoading(true);
       setError(false);
-      const res = await fetch('/api/listing/create', {
+  //POST request to the /api/listing/create endpoint with the form data.
+  //in 'userRef: currentUser._id,' You include userRef: currentUser._id to ensure that the backend knows who created the listing. 
+  //This information is crucial for tracking, managing, or restricting access based on the user.
+      const res = await fetch('/api/listing/create', { //await: This keyword is used in asynchronous functions to pause the execution of the code until the promise resolves.
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -151,9 +166,9 @@ export default function CreateListing() {
           userRef: currentUser._id,
         }),
       });
-      const data = await res.json();
+      const data = await res.json(); //Stores the parsed JSON data in the data variable.
       setLoading(false);
-      if (data.success === false) {
+      if (data.success === false) { //if the API response indicates a failure
         setError(data.message);
       }
       navigate(`/listing/${data._id}`);
@@ -161,6 +176,7 @@ export default function CreateListing() {
       setError(error.message);
       setLoading(false);
     }
+    //error.message provides a descriptive string from caught exception. 
   };
   return (
     <main className='p-3 max-w-4xl mx-auto'>
