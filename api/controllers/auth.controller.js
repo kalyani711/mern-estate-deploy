@@ -4,7 +4,33 @@ import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res, next) => {
+ 
+  console.log("signup console");
   const { username, email, password } = req.body;
+  //
+  console.log("Checking password pattern...");
+  try {
+    // Check if the user already exists
+    console.log(" password pattern being checked...");
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+  } catch (error) {
+    next(error);
+  }
+  const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  console.log("Checked password pattern...");
+  // Validate the password
+  if (!passwordPattern.test(password)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.',
+    });
+  }
+
+  console.log("Checked pattern...");
+  //gap
   const hashedPassword = bcryptjs.hashSync(password, 10); // This method hashes the password and returns a hashed password string./encrypts the password
   const newUser = new User({ username, email, password: hashedPassword });
   try {
@@ -13,9 +39,11 @@ export const signup = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+  console.log("user created in console");
 };
 
 export const signin = async (req, res, next) => {
+ 
   const { email, password } = req.body;
   try {
     const validUser = await User.findOne({ email });
@@ -27,7 +55,7 @@ export const signin = async (req, res, next) => {
      *  This token is used for authenticating future requests. */
     /**below line : destructive assignement : The password field is excluded from rest, ensuring that sensitive information is not included in the response. */
     const { password: pass, ...rest } = validUser._doc;
-     
+   
     res
       .cookie('access_token', token, { httpOnly: true }) //Express.js method to set a cookie in the HTTP response.
       .status(200) //success status
@@ -35,6 +63,7 @@ export const signin = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
 };
 /**
  * 
