@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   // Fallback in case the variable is not defined
-  const backendUrl = env.VITE_REACT_APP_BACKEND_URL ;
+  const backendUrl = https://mern-estate-deploy.vercel.app/ ;
   console.log('Backend URL:', backendUrl);
 
   return {
