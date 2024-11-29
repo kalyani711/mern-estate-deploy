@@ -48,7 +48,7 @@ app.use(express.json()); //Parses incoming JSON requests and makes the data avai
 app.use(cookieParser());//Parses cookies attached to the client request.
 //modifiedcode
 app.use(cors({
-  origin: ['http://localhost:5173'], // Frontend URL
+  origin: ['https://mern-estate-deploy-3m69.vercel.app/'], // Frontend URL
   methods: ['GET', 'POST', 'DELETE', 'PUT'],
   credentials: true, // Enable credentials (cookies, authorization headers)
 }));
